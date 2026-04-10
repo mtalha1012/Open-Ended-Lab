@@ -108,7 +108,7 @@ abstract class Chef implements Ratable{
 
 class JuniorChef extends Chef {
     // Attributes
-    private Chef supervisor;
+    private SeniorChef supervisor;
 
     // Constructor
     public JuniorChef(ArrayList<Recipe> recipes, Chef supervisor)
