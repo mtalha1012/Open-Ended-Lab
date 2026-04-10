@@ -38,7 +38,8 @@ public class Main {
 }
 
 interface Ratable {
-
+    double getRating();
+    void rate(double score);
 }
 
 class NotFoundException extends Exception {
