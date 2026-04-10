@@ -151,6 +151,11 @@ class JuniorChef extends Chef {
     public int getMaxRecipes() {
         return maxRecipes;
     }
+
+    @Override
+    public void rate(double score) {
+        this.rating = score;
+    }
 }
 
 class SeniorChef extends Chef{
@@ -174,6 +179,12 @@ class SeniorChef extends Chef{
     public void setExperience(int experience) {
         this.experience = experience;
     }
+
+    @Override
+    public void rate(double score) {
+        this.rating = score + (this.experience * 0.5);
+    }
+
 }
 
 class Recipe implements Ratable {
@@ -181,9 +192,11 @@ class Recipe implements Ratable {
     private String name;
     private String description;
     private String instructions;
+    private double rating;
 
     // Constructors
     public Recipe() {
+        this.rating = 0.0;
     }
 
     public Recipe(String name, String description, String instructions) {
@@ -215,6 +228,16 @@ class Recipe implements Ratable {
 
     public void setInstructions(String instructions) {
         this.instructions = instructions;
+    }
+
+       @Override
+    public double getRating() {
+        return this.rating;
+    }
+
+    @Override
+    public void rate(double score) {
+        this.rating = score;
     }
 
     // Overriding equals method
