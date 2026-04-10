@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -9,7 +10,40 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("Enter date for contest: ");
+        Date date = getDate(sc);
 
+        double prize = getDouble("Enter prize for the contest: ", sc);
+        CookingContest contest = new CookingContest(date, prize);
+
+        do{
+            printMainMenu();
+            int choice = getInt("Enter choice: ", sc);
+
+            switch(choice) {
+                case 1:
+                    addSeniorChef(contest, sc);
+                    break;
+                case 2:
+                    addJuniorChef(contest, sc);
+                    break;
+                case 3:
+                    addRecipeToChef(contest, sc);
+                    break;
+                case 4:
+                    rateChef(contest, sc);
+                    break;
+                case 5:
+                    rateRecipe(contest, sc);
+                case 6:
+                    viewAllChefs(contest, sc);
+                case 7:
+                    viewAllRatings(contest, sc);
+                case 0:
+                    break;
+                default:
+                    System.out.println("Invalid choice");
+            } while(choice != 0);
+        }
     }
 
     // Helper Functions
@@ -40,7 +74,7 @@ public class Main {
 
 class CookingContest {
     // Attributes
-    private String date;
+    private Date date;
     private ArrayList<Chef> chefs;
     private double prize;
 
@@ -48,18 +82,18 @@ class CookingContest {
     public CookingContest() {
     }
 
-    public CookingContest(String date, ArrayList<Chef> chefs, double prize) {
+    public CookingContest(Date date, double prize) {
         this.date = date;
-        this.chefs = chefs;
+        this.chefs = new ArrayList<Chef>();
         this.prize = prize;
     }
 
     // Getters and setters
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -329,16 +363,3 @@ class Recipe implements Ratable {
     }
 }
 
-
-class CookingContest {
-    private Date contestDate;
-    private double prizeMoney;
-    private ArrayList<Chef> chefs;
-
-    // Constructors
-    public Date contestDate, double prizeMoney) {
-        this.contestDate = contestDate;
-        this.prizeMoney = prizeMoney;
-        this.chefs = new ArrayList<Chef>();
-    }
-}
