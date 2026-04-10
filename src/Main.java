@@ -6,6 +6,9 @@ import java.util.Scanner;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter date for contest: ");
 
     }
 
@@ -30,6 +33,80 @@ public class Main {
             } catch(InputMismatchException e) {
                 System.out.println("Invalid input");
                 sc.next();
+            }
+        }
+    }
+}
+
+class CookingContest {
+    // Attributes
+    private String date;
+    private ArrayList<Chef> chefs;
+    private double prize;
+
+    // Constructors
+    public CookingContest() {
+    }
+
+    public CookingContest(String date, ArrayList<Chef> chefs, double prize) {
+        this.date = date;
+        this.chefs = chefs;
+        this.prize = prize;
+    }
+
+    // Getters and setters
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public ArrayList<Chef> getChefs() {
+        return chefs;
+    }
+
+    public void setChefs(ArrayList<Chef> chefs) {
+        this.chefs = chefs;
+    }
+
+    public double getPrize() {
+        return prize;
+    }
+
+    public void setPrize(double prize) {
+        this.prize = prize;
+    }
+
+    // Methods
+    public void addChef(Chef chef) {
+        chefs.add(chef);
+    }
+
+    public Chef findChefById(int id) throws NotFoundException{
+        for (Chef c: chefs) {
+            if (c.getId() == id)
+                return c;
+        }
+        throw new NotFoundException("Chef with ID " + id + " not found");
+    }
+
+    public SeniorChef findSeniorChefById(int id) throws NotFoundException{
+        for (Chef c: chefs) {
+            if (c instanceof SeniorChef && c.getId() == id) {
+                return (SeniorChef) c;
+            }
+        }
+        throw new NotFoundException("Senior chef with ID " + id + " not found");
+    }
+
+    public void printAllRating() {
+        for (Chef c: chefs) {
+            String type = c instanceof SeniorChef ? "Senior Chef" : "Junior Chef";
+            System.out.println(type + " ID: " + c.getId() + " Rating: " + c.getRating());
+            for (Recipe recipe: c.getRecipes()) {
+                System.out.println("\t" + recipe.getName() + " Rating: " + recipe.getRating());
             }
         }
     }
