@@ -253,3 +253,17 @@ class Recipe implements Ratable {
                 this.instructions.equalsIgnoreCase(recipe.getInstructions()));
     }
 }
+
+
+class CookingContest {
+    private Date contestDate;
+    private double prizeMoney;
+    private ArrayList<Chef> chefs;
+
+    // Constructors
+    public Date contestDate, double prizeMoney) {
+        this.contestDate = contestDate;
+        this.prizeMoney = prizeMoney;
+        this.chefs = new ArrayList<Chef>();
+    }
+}
