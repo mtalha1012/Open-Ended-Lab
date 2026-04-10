@@ -14,8 +14,7 @@ public class Main {
         while(true) {
             try {
                 System.out.print(prompt);
-                double input = sc.nextDouble();
-                return input;
+                return sc.nextDouble();
             } catch(InputMismatchException e) {
                 System.out.println("Invalid input");
                 sc.next();
@@ -27,8 +26,7 @@ public class Main {
         while(true) {
             try {
                 System.out.print(prompt);
-                int input = sc.nextInt();
-                return input;
+                return sc.nextInt();
             } catch(InputMismatchException e) {
                 System.out.println("Invalid input");
                 sc.next();

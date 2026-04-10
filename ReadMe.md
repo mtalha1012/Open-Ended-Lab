@@ -6,3 +6,4 @@ Design choices: \
 5. Made Chef abstract to prevent initialization as each chef must be senior or junior
 6. Added GLOBAL_ID to automatically assign ids to new chefs
 7. Used rate() method to assign rating to entities easily
+8. A contest clas has been created that keeps tracks of all chefs, recipes and happenings of contest
