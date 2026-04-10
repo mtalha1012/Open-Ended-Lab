@@ -38,7 +38,8 @@ public class Main {
 }
 
 interface Ratable {
-
+    double getRating();
+    void rate(double score);
 }
 
 class NotFoundException extends Exception {
@@ -53,26 +54,34 @@ class MaxRecipesExceedException extends Exception {
     }
 }
 
-abstract class Chef implements Ratable{
+abstract class Chef implements Ratable {
+
     // Attributes
-    private static int GLOBAL_ID = 1;
     private int id;
     protected ArrayList<Recipe> recipes;
     protected final int maxRecipes;
+    protected double rating;
+    private static int NoOfChefs = 0;
 
     // Constructors
     public Chef(int maxRecipes) {
+        this.id = ++NoOfChefs;
         this.recipes = new ArrayList<Recipe>();
         this.maxRecipes = maxRecipes;
+        this.rating = 0.0;
     }
 
-    public Chef(ArrayList<Recipe> recipes, int maxRecipes) throws MaxRecipesExceedException{
-        this.id = GLOBAL_ID;
-        GLOBAL_ID++;
+    public Chef(ArrayList<Recipe> recipes, int maxRecipes) throws MaxRecipesExceedException {
+        this.id = ++NoOfChefs;
         this.maxRecipes = maxRecipes;
-        if (recipes.size() > maxRecipes)
+        this.rating = 0.0;
+
+        if (recipes == null)
+            this.recipes = new ArrayList<Recipe>();
+        else if (recipes.size() > maxRecipes)
             throw new MaxRecipesExceedException("Recipes cannot exceed " + maxRecipes);
-        this.recipes = recipes;
+        else
+            this.recipes = recipes;
     }
 
     // Getters and setters
@@ -88,8 +97,17 @@ abstract class Chef implements Ratable{
         this.recipes = recipes;
     }
 
+    @Override
+    public double getRating() {
+        return this.rating;
+    }
+
+    // Force child classes
+    @Override
+    public abstract void rate(double score);
+
     public void addRecipe(Recipe recipe) throws MaxRecipesExceedException{
-        if (recipes.size() > maxRecipes)
+        if (recipes.size() >= maxRecipes)
             throw new MaxRecipesExceedException("Maximum recipes of " + maxRecipes + " cannot be exceeded");
         else
             recipes.add(recipe);
@@ -108,11 +126,11 @@ abstract class Chef implements Ratable{
 
 class JuniorChef extends Chef {
     // Attributes
-    private Chef supervisor;
+    private SeniorChef supervisor;
 
     // Constructor
-    public JuniorChef(ArrayList<Recipe> recipes, Chef supervisor)
-    throws MaxRecipesExceedException{
+    public JuniorChef(ArrayList<Recipe> recipes, SeniorChef supervisor)
+            throws MaxRecipesExceedException{
         super(recipes, 1);
         this.supervisor = supervisor;
     }
@@ -122,16 +140,21 @@ class JuniorChef extends Chef {
     }
 
     // Getters and setters
-    public Chef getSupervisor() {
+    public SeniorChef getSupervisor() {
         return supervisor;
     }
 
-    public void setSupervisor(Chef supervisor) {
+    public void setSupervisor(SeniorChef supervisor) {
         this.supervisor = supervisor;
     }
 
     public int getMaxRecipes() {
         return maxRecipes;
+    }
+
+    @Override
+    public void rate(double score) {
+        this.rating = score;
     }
 }
 
@@ -156,6 +179,12 @@ class SeniorChef extends Chef{
     public void setExperience(int experience) {
         this.experience = experience;
     }
+
+    @Override
+    public void rate(double score) {
+        this.rating = score + (this.experience * 0.5);
+    }
+
 }
 
 class Recipe implements Ratable {
@@ -163,9 +192,11 @@ class Recipe implements Ratable {
     private String name;
     private String description;
     private String instructions;
+    private double rating;
 
     // Constructors
     public Recipe() {
+        this.rating = 0.0;
     }
 
     public Recipe(String name, String description, String instructions) {
@@ -197,6 +228,16 @@ class Recipe implements Ratable {
 
     public void setInstructions(String instructions) {
         this.instructions = instructions;
+    }
+
+    @Override
+    public double getRating() {
+        return this.rating;
+    }
+
+    @Override
+    public void rate(double score) {
+        this.rating = score;
     }
 
     // Overriding equals method
