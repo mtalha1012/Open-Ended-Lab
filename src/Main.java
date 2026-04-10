@@ -84,7 +84,6 @@ abstract class Chef implements Ratable {
             this.recipes = recipes;
     }
 
-        
     // Getters and setters
     public int getId() {
         return id;
@@ -97,6 +96,15 @@ abstract class Chef implements Ratable {
     public void setRecipes(ArrayList<Recipe> recipes) {
         this.recipes = recipes;
     }
+
+    @Override
+    public double getRating() {
+        return this.rating;
+    }
+
+    // Force child classes
+    @Override
+    public abstract void rate(double score);
 
     public void addRecipe(Recipe recipe) throws MaxRecipesExceedException{
         if (recipes.size() >= maxRecipes)
