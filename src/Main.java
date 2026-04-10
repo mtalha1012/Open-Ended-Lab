@@ -1,8 +1,38 @@
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
 
+    }
+
+    // Helper Functions
+    public static double getDouble(String prompt, Scanner sc) {
+        while(true) {
+            try {
+                System.out.print(prompt);
+                double input = sc.nextDouble();
+                return input;
+            } catch(InputMismatchException e) {
+                System.out.println("Invalid input");
+                sc.next();
+            }
+        }
+    }
+
+    public static int getInt(String prompt, Scanner sc) {
+        while(true) {
+            try {
+                System.out.print(prompt);
+                int input = sc.nextInt();
+                return input;
+            } catch(InputMismatchException e) {
+                System.out.println("Invalid input");
+                sc.next();
+            }
+        }
     }
 }
 
