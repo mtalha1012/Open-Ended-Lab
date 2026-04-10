@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -38,6 +39,100 @@ public class Main {
 
 interface Ratable {
 
+}
+
+class NotFoundException extends Exception {
+    public NotFoundException(String message) {
+        super(message);
+    }
+}
+
+class MaxRecipesExceedException extends Exception {
+    public MaxRecipesExceedException(String message) {
+        super(message);
+    }
+}
+
+abstract class Chef implements Ratable{
+    // Attributes
+    private static int GLOBAL_ID = 1;
+    private int id;
+    protected ArrayList<Recipe> recipes;
+    protected final int maxRecipes;
+
+    // Constructors
+    public Chef() {
+    }
+
+    public Chef(ArrayList<Recipe> recipes) {
+        this.id = GLOBAL_ID;
+        GLOBAL_ID++;
+        if (recipes)
+        this.recipes = recipes;
+    }
+
+    // Getters and setters
+    public int getId() {
+        return id;
+    }
+
+    public ArrayList<Recipe> getRecipes() {
+        return recipes;
+    }
+
+    public void setRecipes(ArrayList<Recipe> recipes) {
+        this.recipes = recipes;
+    }
+
+    public void addRecipe(Recipe recipe) throws MaxRecipesExceedException{
+        if (recipes.size() > maxRecipes)
+            throw new MaxRecipesExceedException("Maximum recipes of " + maxRecipes + " cannot be exceeded");
+        else
+            recipes.add(recipe);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        Chef chef;
+        if (obj instanceof Chef)
+            chef = (Chef) obj;
+        else
+            return false;
+        return chef.getId() == this.id;
+    }
+}
+
+class JuniorChef extends Chef {
+    // Attributes
+    private Chef supervisor;
+    private int maxRecipes;
+
+    // Constructor
+    public JuniorChef(ArrayList<Recipe> recipes, Chef supervisor) {
+        maxRecipes = 1;
+        super(recipes);
+        this.supervisor = supervisor;
+    }
+
+    public JuniorChef() {
+    }
+
+    // Getters and setters
+    public Chef getSupervisor() {
+        return supervisor;
+    }
+
+    public void setSupervisor(Chef supervisor) {
+        this.supervisor = supervisor;
+    }
+
+    public int getMaxRecipes() {
+        return maxRecipes;
+    }
+
+    public void setMaxRecipes(int maxRecipes) {
+        this.maxRecipes = maxRecipes;
+    }
 }
 
 class Recipe implements Ratable {
