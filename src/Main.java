@@ -53,28 +53,37 @@ class MaxRecipesExceedException extends Exception {
     }
 }
 
-abstract class Chef implements Ratable{
+abstract class Chef implements Ratable {
+
     // Attributes
-    private static int GLOBAL_ID = 1;
     private int id;
     protected ArrayList<Recipe> recipes;
     protected final int maxRecipes;
+    protected double rating;
+    private static int NoOfChefs = 0;
 
     // Constructors
     public Chef(int maxRecipes) {
+        this.id = ++NoOfChefs; 
         this.recipes = new ArrayList<Recipe>();
         this.maxRecipes = maxRecipes;
+        this.rating = 0.0;
     }
 
-    public Chef(ArrayList<Recipe> recipes, int maxRecipes) throws MaxRecipesExceedException{
-        this.id = GLOBAL_ID;
-        GLOBAL_ID++;
+    public Chef(ArrayList<Recipe> recipes, int maxRecipes) throws MaxRecipesExceedException {
+        this.id = ++NoOfChefs;  
         this.maxRecipes = maxRecipes;
-        if (recipes.size() > maxRecipes)
+        this.rating = 0.0;
+        
+        if (recipes == null)
+            this.recipes = new ArrayList<Recipe>();
+        else if (recipes.size() > maxRecipes)
             throw new MaxRecipesExceedException("Recipes cannot exceed " + maxRecipes);
-        this.recipes = recipes;
+        else
+            this.recipes = recipes;
     }
 
+        
     // Getters and setters
     public int getId() {
         return id;
@@ -89,7 +98,7 @@ abstract class Chef implements Ratable{
     }
 
     public void addRecipe(Recipe recipe) throws MaxRecipesExceedException{
-        if (recipes.size() > maxRecipes)
+        if (recipes.size() >= maxRecipes)
             throw new MaxRecipesExceedException("Maximum recipes of " + maxRecipes + " cannot be exceeded");
         else
             recipes.add(recipe);
@@ -122,7 +131,7 @@ class JuniorChef extends Chef {
     }
 
     // Getters and setters
-    public Chef getSupervisor() {
+    public SeniorChef getSupervisor() {
         return supervisor;
     }
 
