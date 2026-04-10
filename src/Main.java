@@ -61,13 +61,17 @@ abstract class Chef implements Ratable{
     protected final int maxRecipes;
 
     // Constructors
-    public Chef() {
+    public Chef(int maxRecipes) {
+        this.recipes = new ArrayList<Recipe>();
+        this.maxRecipes = maxRecipes;
     }
 
-    public Chef(ArrayList<Recipe> recipes) {
+    public Chef(ArrayList<Recipe> recipes, int maxRecipes) throws MaxRecipesExceedException{
         this.id = GLOBAL_ID;
         GLOBAL_ID++;
-        if (recipes)
+        this.maxRecipes = maxRecipes;
+        if (recipes.size() > maxRecipes)
+            throw new MaxRecipesExceedException("Recipes cannot exceed " + maxRecipes);
         this.recipes = recipes;
     }
 
@@ -105,16 +109,16 @@ abstract class Chef implements Ratable{
 class JuniorChef extends Chef {
     // Attributes
     private Chef supervisor;
-    private int maxRecipes;
 
     // Constructor
-    public JuniorChef(ArrayList<Recipe> recipes, Chef supervisor) {
-        maxRecipes = 1;
-        super(recipes);
+    public JuniorChef(ArrayList<Recipe> recipes, Chef supervisor)
+    throws MaxRecipesExceedException{
+        super(recipes, 1);
         this.supervisor = supervisor;
     }
 
     public JuniorChef() {
+        super(1);
     }
 
     // Getters and setters
@@ -129,9 +133,28 @@ class JuniorChef extends Chef {
     public int getMaxRecipes() {
         return maxRecipes;
     }
+}
 
-    public void setMaxRecipes(int maxRecipes) {
-        this.maxRecipes = maxRecipes;
+class SeniorChef extends Chef{
+    private int experience;
+
+    // Constructors
+    public SeniorChef(ArrayList<Recipe> recipes, int experience) throws MaxRecipesExceedException {
+        super(recipes, 3);
+        this.experience = experience;
+    }
+
+    public SeniorChef() {
+        super(3);
+    }
+
+    // Getters and setters
+    public int getExperience() {
+        return experience;
+    }
+
+    public void setExperience(int experience) {
+        this.experience = experience;
     }
 }
 
