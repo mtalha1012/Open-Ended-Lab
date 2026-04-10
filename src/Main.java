@@ -111,7 +111,7 @@ class JuniorChef extends Chef {
     private SeniorChef supervisor;
 
     // Constructor
-    public JuniorChef(ArrayList<Recipe> recipes, Chef supervisor)
+    public JuniorChef(ArrayList<Recipe> recipes, SeniorChef supervisor)
     throws MaxRecipesExceedException{
         super(recipes, 1);
         this.supervisor = supervisor;
@@ -126,7 +126,7 @@ class JuniorChef extends Chef {
         return supervisor;
     }
 
-    public void setSupervisor(Chef supervisor) {
+    public void setSupervisor(SeniorChef supervisor) {
         this.supervisor = supervisor;
     }
 
