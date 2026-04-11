@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -9,15 +11,15 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("Enter date for contest: ");
-        Date date = getDate(sc);
+        Date date = getDate("Enter date for contest (dd/MM/yyyy): ", sc);
 
         double prize = getDouble("Enter prize for the contest: ", sc);
         CookingContest contest = new CookingContest(date, prize);
 
+        int choice = -1;
         do{
             printMainMenu();
-            int choice = getInt("Enter choice: ", sc);
+            choice = getInt("Enter choice: ", sc);
 
             switch(choice) {
                 case 1:
@@ -27,25 +29,75 @@ public class Main {
                     addJuniorChef(contest, sc);
                     break;
                 case 3:
-                    addRecipeToChef(contest, sc);
+                    //addRecipeToChef(contest, sc);
                     break;
                 case 4:
-                    rateChef(contest, sc);
+                    //rateChef(contest, sc);
                     break;
                 case 5:
-                    rateRecipe(contest, sc);
+                    //rateRecipe(contest, sc);
+                    break;
                 case 6:
-                    viewAllChefs(contest, sc);
+                    //viewAllChefs(contest, sc);
+                    break;
                 case 7:
-                    viewAllRatings(contest, sc);
+                    //viewAllRatings(contest, sc);
+                    break;
                 case 0:
                     break;
                 default:
                     System.out.println("Invalid choice");
-            } while(choice != 0);
+            }
+        } while(choice != 0);
+    }
+
+
+    //Display Menu
+    public static void printMainMenu() {
+        System.out.println("\n=== Main Menu ===");
+        System.out.println("1. Add Senior Chef");
+        System.out.println("2. Add Junior Chef");
+        System.out.println("3. Add Recipe to a Chef");
+        System.out.println("4. Rate a Chef");
+        System.out.println("5. Rate a Recipe");
+        System.out.println("6. View All Chefs");
+        System.out.println("7. View All Ratings");
+        System.out.println("0. Exit");
+    }
+
+
+    //Menu Functions
+    public static void addSeniorChef(CookingContest contest, Scanner sc) {
+        int experience = getInt("Enter years of cooking experience: ", sc);
+        try {
+            SeniorChef obj = new SeniorChef(new ArrayList<>(), experience);
+            contest.addChef(obj);
+            System.out.println("Senior Chef added successfully! Assigned ID: " + obj.getId());
+        } catch (MaxRecipesExceedException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
+    public static void addJuniorChef(CookingContest contest, Scanner sc) {
+        int superId = getInt("Enter the ID of the Senior Chef who will supervise: ", sc);
+        try {
+            SeniorChef supervisor = contest.findSeniorChefById(superId);
+            JuniorChef obj = new JuniorChef(new ArrayList<>(), supervisor);
+            contest.addChef(obj);
+            System.out.println("Junior Chef added successfully! Assigned ID: " + obj.getId());
+        } catch (NotFoundException e) {
+            System.out.println("Not Found: " + e.getMessage());
+        } catch (MaxRecipesExceedException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+    
     // Helper Functions
     public static double getDouble(String prompt, Scanner sc) {
         while(true) {
@@ -70,7 +122,22 @@ public class Main {
             }
         }
     }
+
+    public static Date getDate(String prompt, Scanner sc) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        while (true) {
+            System.out.print(prompt);
+            String dateStr = sc.next();
+            try {
+                return sdf.parse(dateStr);
+            } catch (ParseException e) {
+                System.out.println("Incorrect Format. Use dd/MM/yyyy.");
+            }
+        }
+    }
+    
 }
+
 
 class CookingContest {
     // Attributes
