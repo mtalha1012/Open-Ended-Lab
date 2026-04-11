@@ -296,43 +296,25 @@ class CookingContest {
             return;
         }
         
+        List<Chef> rankedChefs = new ArrayList<>(chefs);
+        Collections.sort(rankedChefs);
+        
         System.out.println("\n-------------------------------------------------------------");
         System.out.printf("%-5s | %-12s | %-20s | %-10s%n", "ID", "Type", "Item", "Rating");
         System.out.println("-------------------------------------------------------------");
 
-        for (Chef c: chefs) {
+        for (Chef c: rankedChefs) {
             String type = c instanceof SeniorChef ? "Senior" : "Junior";
             System.out.printf("%-5d | %-12s | %-20s | %-10.1f%n", c.getId(), type, "[Chef's Overall]", c.getRating());
             
-            for (Recipe recipe: c.getRecipes()) {
+            List<Recipe> rankedRecipes = new ArrayList<>(c.getRecipes());
+            Collections.sort(rankedRecipes);
+            
+            for (Recipe recipe: rankedRecipes) {
                 System.out.printf("%-5s | %-12s | %-20s | %-10.1f%n", "", "", "- " + recipe.getName(), recipe.getRating());
             }
             System.out.println("-------------------------------------------------------------");
         }
-    }
-    
-    // Added declare winner
-    public void declareWinner() {
-        if (chefs.isEmpty()) {
-            System.out.println("No chefs enrolled in the contest yet.");
-            return;
-        }
-        
-        Chef winner = chefs.get(0);
-        for (Chef c : chefs) {
-            if (c.getRating() > winner.getRating()) {
-                winner = c;
-            }
-        }
-        
-        System.out.println("\n**************************************************");
-        System.out.println("                CONTEST WINNER!                   ");
-        System.out.println("**************************************************");
-        String type = winner instanceof SeniorChef ? "Senior Chef" : "Junior Chef";
-        System.out.println("Winner: " + type + " (ID: " + winner.getId() + ")");
-        System.out.println("Winning Score: " + winner.getRating());
-        System.out.printf("Prize Awarded: $%.2f%n", this.prize);
-        System.out.println("**************************************************");
     }
 }
 
@@ -353,7 +335,7 @@ class MaxRecipesExceedException extends Exception {
     }
 }
 
-abstract class Chef implements Ratable {
+abstract class Chef implements Ratable, Comparable<Chef> {
 
     // Attributes
     private int id;
@@ -422,6 +404,12 @@ abstract class Chef implements Ratable {
             return false;
         return chef.getId() == this.id;
     }
+
+    @Override
+    public int compareTo(Chef otherChef) {
+        // highest rating to lowest
+        return Double.compare(otherChef.getRating(), this.getRating());
+    }
 }
 
 class JuniorChef extends Chef {
@@ -487,7 +475,7 @@ class SeniorChef extends Chef{
 
 }
 
-class Recipe implements Ratable {
+class Recipe implements Ratable, Comparable<Recipe> {
     // Attributes
     private String name;
     private String ingredients;
@@ -551,5 +539,10 @@ class Recipe implements Ratable {
         return (this.name.equalsIgnoreCase(recipe.getName()) &&
                 this.ingredients.equalsIgnoreCase(recipe.getIngredients()) &&
                 this.instructions.equalsIgnoreCase(recipe.getInstructions()));
+    }
+
+    @Override
+    public int compareTo(Recipe otherRecipe) {
+        return Double.compare(otherRecipe.getRating(), this.getRating());
     }
 }
