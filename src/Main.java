@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -41,7 +43,10 @@ public class Main {
                     viewAllChefs(contest, sc);
                     break;
                 case 7:
-                    viewAllRatings(contest, sc);
+                    viewAllRatings(contest);
+                    break;
+                case 8:
+                    declareWinner(contest);
                     break;
                 case 0:
                     break;
@@ -62,6 +67,7 @@ public class Main {
         System.out.println("5. Rate a Recipe");
         System.out.println("6. View All Chefs");
         System.out.println("7. View All Ratings");
+        System.out.println("8. Declare Winner");
         System.out.println("0. Exit");
     }
 
@@ -174,6 +180,10 @@ public class Main {
         System.out.println("\n--- Leaderboard & Ratings ---");
         contest.printAllRating();
     }
+    
+    public static void declareWinner(CookingContest contest) {
+        contest.declareWinner();
+    }
    
     // Helper Functions
     public static double getDouble(String prompt, Scanner sc) {
@@ -241,8 +251,9 @@ class CookingContest {
         this.date = date;
     }
 
-    public ArrayList<Chef> getChefs() {
-        return chefs;
+    // Made immutable
+    public List<Chef> getChefs() {
+        return Collections.unmodifiableList(chefs);
     }
 
     public void setChefs(ArrayList<Chef> chefs) {
@@ -299,6 +310,30 @@ class CookingContest {
             System.out.println("-------------------------------------------------------------");
         }
     }
+    
+    // Added declare winner
+    public void declareWinner() {
+        if (chefs.isEmpty()) {
+            System.out.println("No chefs enrolled in the contest yet.");
+            return;
+        }
+        
+        Chef winner = chefs.get(0);
+        for (Chef c : chefs) {
+            if (c.getRating() > winner.getRating()) {
+                winner = c;
+            }
+        }
+        
+        System.out.println("\n**************************************************");
+        System.out.println("                CONTEST WINNER!                   ");
+        System.out.println("**************************************************");
+        String type = winner instanceof SeniorChef ? "Senior Chef" : "Junior Chef";
+        System.out.println("Winner: " + type + " (ID: " + winner.getId() + ")");
+        System.out.println("Winning Score: " + winner.getRating());
+        System.out.printf("Prize Awarded: $%.2f%n", this.prize);
+        System.out.println("**************************************************");
+    }
 }
 
 interface Ratable {
@@ -353,8 +388,9 @@ abstract class Chef implements Ratable {
         return id;
     }
 
-    public ArrayList<Recipe> getRecipes() {
-        return recipes;
+    // Made immutable
+    public List<Recipe> getRecipes() {
+        return Collections.unmodifiableList(recipes);
     }
 
     public void setRecipes(ArrayList<Recipe> recipes) {
@@ -517,4 +553,3 @@ class Recipe implements Ratable {
                 this.instructions.equalsIgnoreCase(recipe.getInstructions()));
     }
 }
-
