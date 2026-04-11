@@ -121,7 +121,7 @@ public class Main {
         try {
             Chef chef = contest.findChefById(id);
             chef.rate(score);
-            System.out.println("Chef rated! New Rating: " + chef.getRating());
+            System.out.printf("Chef rated! New Rating: %.1f%n", chef.getRating());
         } catch (NotFoundException | IllegalArgumentException e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -285,7 +285,7 @@ class CookingContest {
         throw new NotFoundException("Senior chef with ID " + id + " not found");
     }
 
-    public void printAllRating() {
+public void printAllRating() {
         if(chefs.isEmpty()) {
             System.out.println("No ratings to show yet.");
             return;
@@ -294,21 +294,26 @@ class CookingContest {
         List<Chef> rankedChefs = new ArrayList<>(chefs);
         Collections.sort(rankedChefs);
         
-        System.out.println("\n-------------------------------------------------------------");
-        System.out.printf("%-5s | %-12s | %-20s | %-10s%n", "ID", "Type", "Item", "Rating");
-        System.out.println("-------------------------------------------------------------");
+        System.out.println("\n-------------------------------------------------------------------------");
+        // Made the columns a bit wider to fit the histogram
+        System.out.printf("%-5s | %-12s | %-18s | %-5s | %-15s%n", "ID", "Type", "Item", "Score", "Visual Rating");
+        System.out.println("-------------------------------------------------------------------------");
 
         for (Chef c: rankedChefs) {
             String type = c instanceof SeniorChef ? "Senior" : "Junior";
-            System.out.printf("%-5d | %-12s | %-20s | %-10.1f%n", c.getId(), type, "[Chef's Overall]", c.getRating());
+            
+            System.out.printf("%-5d | %-12s | %-18s | %-5.1f | %-15s%n", 
+                    c.getId(), type, "[Chef's Overall]", c.getRating(), getHistogram(c.getRating()));
             
             List<Recipe> rankedRecipes = new ArrayList<>(c.getRecipes());
             Collections.sort(rankedRecipes);
             
             for (Recipe recipe: rankedRecipes) {
-                System.out.printf("%-5s | %-12s | %-20s | %-10.1f%n", "", "", "- " + recipe.getName(), recipe.getRating());
+                // Added the getHistogram() call for recipes too
+                System.out.printf("%-5s | %-12s | %-18s | %-5.1f | %-15s%n", 
+                        "", "", "- " + recipe.getName(), recipe.getRating(), getHistogram(recipe.getRating()));
             }
-            System.out.println("-------------------------------------------------------------");
+            System.out.println("-------------------------------------------------------------------------");
         }
     }
     
@@ -332,9 +337,25 @@ class CookingContest {
         System.out.println("**************************************************");
         String type = winner instanceof SeniorChef ? "Senior Chef" : "Junior Chef";
         System.out.println("Winner: " + type + " (ID: " + winner.getId() + ")");
-        System.out.println("Winning Score: " + winner.getRating());
+        System.out.printf("Winning Score: %.1f%n", winner.getRating());
         System.out.printf("Prize Awarded: $%.2f%n", this.prize);
         System.out.println("**************************************************");
+    }
+
+    //Histogram Helper
+    private String getHistogram(double rating) {
+        int filledBlocks = (int) Math.round(rating); // Round to nearest whole number
+        StringBuilder bar = new StringBuilder("[");
+        
+        for (int i = 1; i <= 10; i++) {
+            if (i <= filledBlocks) {
+                bar.append("█"); // Alt+219 on Numpad
+            } else {
+                bar.append(" ");
+            }
+        }
+        bar.append("]");
+        return bar.toString();
     }
 }
 
