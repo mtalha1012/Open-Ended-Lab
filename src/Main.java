@@ -9,42 +9,48 @@ import java.text.ParseException;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
 
-        Date date = getDate("Enter date for contest (dd/MM/yyyy): ", sc);
+        Date date = getDate("Enter date for contest (dd/MM/yyyy): ");
 
-        double prize = getValidDouble("Enter prize for the contest: ", sc, 0, Double.MAX_VALUE);
+        double prize = getValidDouble("Enter prize for the contest: ", 0, Double.MAX_VALUE);
         CookingContest contest = new CookingContest(date, prize);
 
         int choice = -1;
         do{
             printMainMenu();
-            choice = getInt("Enter choice: ", sc);
+            choice = getInt("Enter choice: ");
 
             switch(choice) {
                 case 1:
-                    addSeniorChef(contest, sc);
+                    addSeniorChef(contest);
                     break;
                 case 2:
-                    addJuniorChef(contest, sc);
+                    addJuniorChef(contest);
                     break;
                 case 3:
-                    addRecipeToChef(contest, sc);
+                    addRecipeToChef(contest);
                     break;
                 case 4:
-                    rateChef(contest, sc);
+                    rateChef(contest);
                     break;
                 case 5:
-                    rateRecipe(contest, sc);
+                    rateRecipe(contest);
                     break;
                 case 6:
-                    viewAllChefs(contest, sc);
+                    viewAllChefs(contest);
                     break;
                 case 7:
                     viewAllRatings(contest);
                     break;
                 case 8:
                     declareWinner(contest);
+                    break;
+                case 9999: // for testing purposes
+                    if (contest.getChefs().isEmpty()){
+                        DataSeeder.seed(contest);
+                        System.out.println("\n[TESTING] Test Data Loaded!");
+                    } else
+                        System.out.println("\n[ERROR] Contest already has data.");
                     break;
                 case 0:
                     break;
@@ -69,8 +75,8 @@ public class Main {
     }
 
     //Menu Functions
-    public static void addSeniorChef(CookingContest contest, Scanner sc) {
-        int experience = getInt("Enter years of cooking experience: ", sc);
+    public static void addSeniorChef(CookingContest contest) {
+        int experience = getInt("Enter years of cooking experience: ");
         try {
             SeniorChef obj = new SeniorChef(new ArrayList<>(), experience);
             contest.addChef(obj);
@@ -80,8 +86,8 @@ public class Main {
         }
     }
 
-    public static void addJuniorChef(CookingContest contest, Scanner sc) {
-        int superId = getInt("Enter the ID of the Senior Chef who will supervise: ", sc);
+    public static void addJuniorChef(CookingContest contest) {
+        int superId = getInt("Enter the ID of the Senior Chef who will supervise: ");
         try {
             SeniorChef supervisor = contest.findSeniorChefById(superId);
             JuniorChef obj = new JuniorChef(new ArrayList<>(), supervisor);
@@ -92,8 +98,9 @@ public class Main {
         }
     }
 
-    public static void addRecipeToChef(CookingContest contest, Scanner sc) {
-        int id = getInt("Enter Chef ID to add recipe to: ", sc);
+    public static void addRecipeToChef(CookingContest contest) {
+        Scanner sc = InputReader.getInstance(); // Fetch singleton instance here for nextLine()
+        int id = getInt("Enter Chef ID to add recipe to: ");
         sc.nextLine(); // Buffer clear
         
         try {
@@ -115,9 +122,9 @@ public class Main {
         }
     }
 
-    public static void rateChef(CookingContest contest, Scanner sc) {
-        int id = getInt("Enter Chef ID to rate: ", sc);
-        double score = getDouble("Enter rating score (0.0 to 10.0): ", sc);
+    public static void rateChef(CookingContest contest) {
+        int id = getInt("Enter Chef ID to rate: ");
+        double score = getDouble("Enter rating score (0.0 to 10.0): ");
         try {
             Chef chef = contest.findChefById(id);
             chef.rate(score);
@@ -127,8 +134,8 @@ public class Main {
         }
     }
 
-    public static void rateRecipe(CookingContest contest, Scanner sc) {
-        int id = getInt("Enter Chef ID who owns the recipe: ", sc);
+    public static void rateRecipe(CookingContest contest) {
+        int id = getInt("Enter Chef ID who owns the recipe: ");
         try {
             Chef chef = contest.findChefById(id);
             if (chef.getRecipes().isEmpty()) {
@@ -140,9 +147,9 @@ public class Main {
             for (int i = 0; i < chef.getRecipes().size(); i++)
                 System.out.println((i + 1) + ". " + chef.getRecipes().get(i).getName());
             
-            int choice = getInt("Select recipe number to rate: ", sc);
+            int choice = getInt("Select recipe number to rate: ");
             if (choice > 0 && choice <= chef.getRecipes().size()) {
-                double score = getDouble("Enter rating score (0.0 to 10.0): ", sc);
+                double score = getDouble("Enter rating score (0.0 to 10.0): ");
                 chef.getRecipes().get(choice - 1).rate(score);
                 System.out.println("Recipe rated successfully!");
             } else {
@@ -153,7 +160,7 @@ public class Main {
         }
     }
 
-    public static void viewAllChefs(CookingContest contest, Scanner sc) {
+    public static void viewAllChefs(CookingContest contest) {
         System.out.println("\n-------------------------------------------------");
         System.out.printf("%-5s | %-15s | %-15s%n", "ID", "Chef Type", "Recipes Enrolled");
         System.out.println("-------------------------------------------------");
@@ -178,7 +185,8 @@ public class Main {
     }
    
     // Helper Functions
-    public static double getDouble(String prompt, Scanner sc) {
+    public static double getDouble(String prompt) {
+        Scanner sc = InputReader.getInstance();
         while(true) {
             try {
                 System.out.print(prompt);
@@ -190,15 +198,16 @@ public class Main {
         }
     }
 
-    public static double getValidDouble(String prompt, Scanner sc, double min, double max) {
+    public static double getValidDouble(String prompt, double min, double max) {
         while(true) {
-            double val = getDouble(prompt, sc);
+            double val = getDouble(prompt);
             if (val >= min && val <= max) return val;
             System.out.println("Value must be between " + min + " and " + max);
         }
     }
 
-    public static int getInt(String prompt, Scanner sc) {
+    public static int getInt(String prompt) {
+        Scanner sc = InputReader.getInstance();
         while(true) {
             try {
                 System.out.print(prompt);
@@ -210,7 +219,8 @@ public class Main {
         }
     }
 
-    public static Date getDate(String prompt, Scanner sc) {
+    public static Date getDate(String prompt) {
+        Scanner sc = InputReader.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         sdf.setLenient(false); // Prevents dates like 32/13/2026
         while (true) {
@@ -224,7 +234,6 @@ public class Main {
         }
     }
 }
-
 
 class CookingContest {
     private Date date;
@@ -285,7 +294,7 @@ class CookingContest {
         throw new NotFoundException("Senior chef with ID " + id + " not found");
     }
 
-public void printAllRating() {
+    public void printAllRating() {
         if(chefs.isEmpty()) {
             System.out.println("No ratings to show yet.");
             return;
@@ -349,7 +358,7 @@ public void printAllRating() {
         
         for (int i = 1; i <= 10; i++) {
             if (i <= filledBlocks) {
-                bar.append("█"); // Alt+219 on Numpad
+                bar.append("*");
             } else {
                 bar.append(" ");
             }
@@ -579,5 +588,53 @@ class Recipe implements Ratable, Comparable<Recipe> {
     @Override
     public int compareTo(Recipe otherRecipe) {
         return Double.compare(otherRecipe.getRating(), this.getRating());
+    }
+}
+
+class InputReader {
+    private static final Scanner scanner = new Scanner(System.in);
+
+    // Private constructor prevents instantiation
+    private InputReader() {}
+
+    public static Scanner getInstance() {
+        return scanner;
+    }
+}
+
+// hidden Data Seeder, for testing purposes only
+class DataSeeder {
+    public static void seed(CookingContest contest) {
+        try {
+            SeniorChef sen = new SeniorChef(new ArrayList<>(), 18); // 18 years experience
+            Recipe biryani = new Recipe("Student Biryani", "Rice, Chicken, Secret Masala", "Layer rice and meat. Put on dum for 20 mins.");
+            Recipe karahi = new Recipe("Mutton Karahi", "Mutton, Tomatoes, Black Pepper, Desi Ghee", "Continuous bhunai on high flame until oil separates.");
+            
+            sen.addRecipe(biryani);
+            sen.addRecipe(karahi);
+            sen.rate(8.0);
+            biryani.rate(9.5);     
+            karahi.rate(8.5);        
+            contest.addChef(sen);
+
+            JuniorChef jun1 = new JuniorChef(new ArrayList<>(), sen);
+            Recipe maggi = new Recipe("Maggi", "Instant Noodles, Water", "Boil in electric kettle");
+            
+            jun1.addRecipe(maggi);
+            jun1.rate(6.5);
+            maggi.rate(6.0);
+            contest.addChef(jun1);
+            
+            JuniorChef jun2 = new JuniorChef(new ArrayList<>(), sen);
+            Recipe chai = new Recipe("Karak Chai", "Tapal Danedar, Milk, Sugar", "Boil until the color is dark and strong.");
+            
+            jun2.addRecipe(chai);
+            jun2.rate(8.2);
+            chai.rate(9.0);
+            contest.addChef(jun2);
+
+        } catch (MaxRecipesExceedException e) {
+            System.out.println("Seeding error: " + e.getMessage());
+        }
     }
 }
