@@ -92,11 +92,32 @@ public class Main {
         }
     }
 
+    public static void addRecipeToChef(CookingContest contest, Scanner sc) {
+        int id = getInt("Enter Chef ID to add recipe to: ", sc);
+        sc.nextLine(); // Buffer clear
+        
+        try {
+            Chef chef = contest.findChefById(chefId);
+            
+            System.out.print("Enter Recipe Name: ");
+            String name = sc.nextLine();
+            System.out.print("Enter Ingredients: ");
+            String ingr = sc.nextLine();
+            System.out.print("Enter Instructions: ");
+            String inst = sc.nextLine();
 
+            Recipe recipe = new Recipe(name, ingr, inst);
+            chef.addRecipe(recipe);
+            System.out.println("Recipe '" + name + "' added successfully to Chef ID: " + chefId);
 
+        } catch (NotFoundException e) {
+            System.out.println("Not Found: " + e.getMessage());
+        } catch (MaxRecipesExceedException e) {
+            System.out.println("Error: " + e.getMessage());
+            }
+    }
 
-
-
+    
     
     // Helper Functions
     public static double getDouble(String prompt, Scanner sc) {
@@ -366,7 +387,7 @@ class SeniorChef extends Chef{
 class Recipe implements Ratable {
     // Attributes
     private String name;
-    private String description;
+    private String ingredients;
     private String instructions;
     private double rating;
 
@@ -375,9 +396,9 @@ class Recipe implements Ratable {
         this.rating = 0.0;
     }
 
-    public Recipe(String name, String description, String instructions) {
+    public Recipe(String name, String ingredients, String instructions) {
         this.name = name;
-        this.description = description;
+        this.ingredients = ingredients;
         this.instructions = instructions;
     }
 
@@ -390,12 +411,12 @@ class Recipe implements Ratable {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public String getIngredients() {
+        return ingredients;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setIngredients(String ingredients) {
+        this.ingredients = ingredients;
     }
 
     public String getInstructions() {
@@ -425,7 +446,7 @@ class Recipe implements Ratable {
         else
             return false;
         return (this.name.equalsIgnoreCase(recipe.getName()) &&
-                this.description.equalsIgnoreCase(recipe.getDescription()) &&
+                this.ingredients.equalsIgnoreCase(recipe.getIngredients()) &&
                 this.instructions.equalsIgnoreCase(recipe.getInstructions()));
     }
 }
