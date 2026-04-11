@@ -29,19 +29,19 @@ public class Main {
                     addJuniorChef(contest, sc);
                     break;
                 case 3:
-                    //addRecipeToChef(contest, sc);
+                    addRecipeToChef(contest, sc);
                     break;
                 case 4:
-                    //rateChef(contest, sc);
+                    rateChef(contest, sc);
                     break;
                 case 5:
-                    //rateRecipe(contest, sc);
+                    rateRecipe(contest, sc);
                     break;
                 case 6:
-                    //viewAllChefs(contest, sc);
+                    viewAllChefs(contest, sc);
                     break;
                 case 7:
-                    //viewAllRatings(contest, sc);
+                    viewAllRatings(contest, sc);
                     break;
                 case 0:
                     break;
@@ -97,7 +97,7 @@ public class Main {
         sc.nextLine(); // Buffer clear
         
         try {
-            Chef chef = contest.findChefById(chefId);
+            Chef chef = contest.findChefById(id);
             
             System.out.print("Enter Recipe Name: ");
             String name = sc.nextLine();
@@ -108,7 +108,7 @@ public class Main {
 
             Recipe recipe = new Recipe(name, ingr, inst);
             chef.addRecipe(recipe);
-            System.out.println("Recipe '" + name + "' added successfully to Chef ID: " + chefId);
+            System.out.println("Recipe '" + name + "' added successfully to Chef ID: " + id);
 
         } catch (NotFoundException e) {
             System.out.println("Not Found: " + e.getMessage());
@@ -117,8 +117,82 @@ public class Main {
             }
     }
 
-    
-    
+    public static void rateChef(CookingContest contest, Scanner sc) {
+        int id = getInt("Enter Chef ID to rate: ", sc);
+        double score = getDouble("Enter rating score (e.g., 8.5): ", sc);
+        try {
+            Chef chef = contest.findChefById(id);
+            chef.rate(score);
+            System.out.println("Chef rated! New Rating: " + chef.getRating());
+        } catch (NotFoundException e) {
+            System.out.println("Not Found: " + e.getMessage());
+        }
+    }
+
+    public static void rateRecipe(CookingContest contest, Scanner sc) {
+        int id = getInt("Enter Chef ID who owns the recipe: ", sc);
+        try {
+            Chef chef = contest.findChefById(id);
+            if (chef.getRecipes().isEmpty()) {
+                System.out.println("This chef has no recipes!");
+                return;
+            }
+            
+            System.out.println("Recipes by Chef " + id + ":");
+            for (int i = 0; i < chef.getRecipes().size(); i++)
+                System.out.println((i + 1) + ". " + chef.getRecipes().get(i).getName());
+            
+            int choice = getInt("Select recipe number to rate: ", sc);
+            if (choice > 0 && choice <= chef.getRecipes().size()) {
+                double score = getDouble("Enter rating score (e.g., 8.5): ", sc);
+                chef.getRecipes().get(choice - 1).rate(score);
+                System.out.println("Recipe rated successfully!");
+            } else {
+                System.out.println("Invalid Choice!");
+            }
+        } catch (NotFoundException e) {
+            System.out.println("Not Found: " + e.getMessage());
+        }
+    }
+
+    public static void viewAllChefs(CookingContest contest, Scanner sc) {
+        System.out.println("\n-------------------------------------------------");
+        System.out.printf("%-5s | %-15s | %-15s%n", "ID", "Chef Type", "Recipes Enrolled");
+        System.out.println("-------------------------------------------------");
+
+        if (contest.getChefs().isEmpty())
+            System.out.println("No chefs enrolled yet.");
+        else
+            for(Chef c : contest.getChefs()) {
+                String type = c instanceof SeniorChef ? "Senior" : "Junior";
+                System.out.printf("%-5d | %-15s | %-15d%n", c.getId(), type, c.getRecipes().size());
+            }
+        System.out.println("-------------------------------------------------");
+    }
+
+    public static void viewAllRatings(CookingContest contest, Scanner sc) {
+        if (contest.getChefs().isEmpty()){
+            System.out.println("No ratings to show yet.");
+            return;
+        }
+        
+        System.out.println("\n-------------------------------------------------------------");
+        System.out.printf("%-5s | %-12s | %-20s | %-10s%n", "ID", "Type", "Item", "Rating");
+        System.out.println("-------------------------------------------------------------");
+
+        for(Chef c : contest.getChefs()) {
+            String type = c instanceof SeniorChef ? "Senior" : "Junior";
+
+            System.out.printf("%-5d | %-12s | %-20s | %-10.1f%n", c.getId(), type, "[Chef's Overall]", c.getRating());
+            
+            // Print their recipes' ratings below them
+            for (Recipe recipe: c.getRecipes()) {
+                System.out.printf("%-5s | %-12s | %-20s | %-10.1f%n", "", "", "- " + recipe.getName(), recipe.getRating());
+            }
+            System.out.println("-------------------------------------------------------------");
+        }
+    }
+   
     // Helper Functions
     public static double getDouble(String prompt, Scanner sc) {
         while(true) {
