@@ -170,27 +170,9 @@ public class Main {
         System.out.println("-------------------------------------------------");
     }
 
-    public static void viewAllRatings(CookingContest contest, Scanner sc) {
-        if (contest.getChefs().isEmpty()){
-            System.out.println("No ratings to show yet.");
-            return;
-        }
-        
-        System.out.println("\n-------------------------------------------------------------");
-        System.out.printf("%-5s | %-12s | %-20s | %-10s%n", "ID", "Type", "Item", "Rating");
-        System.out.println("-------------------------------------------------------------");
-
-        for(Chef c : contest.getChefs()) {
-            String type = c instanceof SeniorChef ? "Senior" : "Junior";
-
-            System.out.printf("%-5d | %-12s | %-20s | %-10.1f%n", c.getId(), type, "[Chef's Overall]", c.getRating());
-            
-            // Print their recipes' ratings below them
-            for (Recipe recipe: c.getRecipes()) {
-                System.out.printf("%-5s | %-12s | %-20s | %-10.1f%n", "", "", "- " + recipe.getName(), recipe.getRating());
-            }
-            System.out.println("-------------------------------------------------------------");
-        }
+    public static void viewAllRatings(CookingContest contest) {
+        System.out.println("\n--- Leaderboard & Ratings ---");
+        contest.printAllRating();
     }
    
     // Helper Functions
@@ -298,12 +280,23 @@ class CookingContest {
     }
 
     public void printAllRating() {
+        if(chefs.isEmpty()) {
+            System.out.println("No ratings to show yet.");
+            return;
+        }
+        
+        System.out.println("\n-------------------------------------------------------------");
+        System.out.printf("%-5s | %-12s | %-20s | %-10s%n", "ID", "Type", "Item", "Rating");
+        System.out.println("-------------------------------------------------------------");
+
         for (Chef c: chefs) {
-            String type = c instanceof SeniorChef ? "Senior Chef" : "Junior Chef";
-            System.out.println(type + " ID: " + c.getId() + " Rating: " + c.getRating());
+            String type = c instanceof SeniorChef ? "Senior" : "Junior";
+            System.out.printf("%-5d | %-12s | %-20s | %-10.1f%n", c.getId(), type, "[Chef's Overall]", c.getRating());
+            
             for (Recipe recipe: c.getRecipes()) {
-                System.out.println("\t" + recipe.getName() + " Rating: " + recipe.getRating());
+                System.out.printf("%-5s | %-12s | %-20s | %-10.1f%n", "", "", "- " + recipe.getName(), recipe.getRating());
             }
+            System.out.println("-------------------------------------------------------------");
         }
     }
 }
