@@ -484,7 +484,7 @@ class SeniorChef extends Chef{
     @Override
     public void rate(double score) {
         if (score < 0.0 || score > 10.0) throw new IllegalArgumentException("Score must be between 0.0 and 10.0");
-        this.rating = score + (this.experience * 0.5);
+        this.rating = Math.min(10.0, score + (this.experience * 0.2));
     }
 }
 
