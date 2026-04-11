@@ -7,15 +7,13 @@ import java.util.Scanner;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         Date date = getDate("Enter date for contest (dd/MM/yyyy): ", sc);
 
-        double prize = getDouble("Enter prize for the contest: ", sc);
+        double prize = getValidDouble("Enter prize for the contest: ", sc, 0, Double.MAX_VALUE);
         CookingContest contest = new CookingContest(date, prize);
 
         int choice = -1;
@@ -56,7 +54,6 @@ public class Main {
         } while(choice != 0);
     }
 
-
     //Display Menu
     public static void printMainMenu() {
         System.out.println("\n=== Main Menu ===");
@@ -71,7 +68,6 @@ public class Main {
         System.out.println("0. Exit");
     }
 
-
     //Menu Functions
     public static void addSeniorChef(CookingContest contest, Scanner sc) {
         int experience = getInt("Enter years of cooking experience: ", sc);
@@ -79,7 +75,7 @@ public class Main {
             SeniorChef obj = new SeniorChef(new ArrayList<>(), experience);
             contest.addChef(obj);
             System.out.println("Senior Chef added successfully! Assigned ID: " + obj.getId());
-        } catch (MaxRecipesExceedException e) {
+        } catch (MaxRecipesExceedException | IllegalArgumentException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -91,9 +87,7 @@ public class Main {
             JuniorChef obj = new JuniorChef(new ArrayList<>(), supervisor);
             contest.addChef(obj);
             System.out.println("Junior Chef added successfully! Assigned ID: " + obj.getId());
-        } catch (NotFoundException e) {
-            System.out.println("Not Found: " + e.getMessage());
-        } catch (MaxRecipesExceedException e) {
+        } catch (NotFoundException | MaxRecipesExceedException | IllegalArgumentException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -116,22 +110,20 @@ public class Main {
             chef.addRecipe(recipe);
             System.out.println("Recipe '" + name + "' added successfully to Chef ID: " + id);
 
-        } catch (NotFoundException e) {
-            System.out.println("Not Found: " + e.getMessage());
-        } catch (MaxRecipesExceedException e) {
+        } catch (NotFoundException | MaxRecipesExceedException | IllegalArgumentException e) {
             System.out.println("Error: " + e.getMessage());
-            }
+        }
     }
 
     public static void rateChef(CookingContest contest, Scanner sc) {
         int id = getInt("Enter Chef ID to rate: ", sc);
-        double score = getDouble("Enter rating score (e.g., 8.5): ", sc);
+        double score = getDouble("Enter rating score (0.0 to 10.0): ", sc);
         try {
             Chef chef = contest.findChefById(id);
             chef.rate(score);
             System.out.println("Chef rated! New Rating: " + chef.getRating());
-        } catch (NotFoundException e) {
-            System.out.println("Not Found: " + e.getMessage());
+        } catch (NotFoundException | IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -150,14 +142,14 @@ public class Main {
             
             int choice = getInt("Select recipe number to rate: ", sc);
             if (choice > 0 && choice <= chef.getRecipes().size()) {
-                double score = getDouble("Enter rating score (e.g., 8.5): ", sc);
+                double score = getDouble("Enter rating score (0.0 to 10.0): ", sc);
                 chef.getRecipes().get(choice - 1).rate(score);
                 System.out.println("Recipe rated successfully!");
             } else {
                 System.out.println("Invalid Choice!");
             }
-        } catch (NotFoundException e) {
-            System.out.println("Not Found: " + e.getMessage());
+        } catch (NotFoundException | IllegalArgumentException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
@@ -192,9 +184,17 @@ public class Main {
                 System.out.print(prompt);
                 return sc.nextDouble();
             } catch(InputMismatchException e) {
-                System.out.println("Invalid input");
+                System.out.println("Invalid input. Please enter a number.");
                 sc.next();
             }
+        }
+    }
+
+    public static double getValidDouble(String prompt, Scanner sc, double min, double max) {
+        while(true) {
+            double val = getDouble(prompt, sc);
+            if (val >= min && val <= max) return val;
+            System.out.println("Value must be between " + min + " and " + max);
         }
     }
 
@@ -204,7 +204,7 @@ public class Main {
                 System.out.print(prompt);
                 return sc.nextInt();
             } catch(InputMismatchException e) {
-                System.out.println("Invalid input");
+                System.out.println("Invalid input. Please enter a whole number.");
                 sc.next();
             }
         }
@@ -212,37 +212,34 @@ public class Main {
 
     public static Date getDate(String prompt, Scanner sc) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false); // Prevents dates like 32/13/2026
         while (true) {
             System.out.print(prompt);
             String dateStr = sc.next();
             try {
                 return sdf.parse(dateStr);
             } catch (ParseException e) {
-                System.out.println("Incorrect Format. Use dd/MM/yyyy.");
+                System.out.println("Incorrect Format. Use dd/MM/yyyy (e.g., 09/04/2026).");
             }
         }
     }
-    
 }
 
 
 class CookingContest {
-    // Attributes
     private Date date;
     private ArrayList<Chef> chefs;
     private double prize;
 
-    // Constructors
     public CookingContest() {
     }
 
     public CookingContest(Date date, double prize) {
         this.date = date;
         this.chefs = new ArrayList<Chef>();
-        this.prize = prize;
+        setPrize(prize); // Route through setter for validation
     }
 
-    // Getters and setters
     public Date getDate() {
         return date;
     }
@@ -251,7 +248,6 @@ class CookingContest {
         this.date = date;
     }
 
-    // Made immutable
     public List<Chef> getChefs() {
         return Collections.unmodifiableList(chefs);
     }
@@ -265,18 +261,17 @@ class CookingContest {
     }
 
     public void setPrize(double prize) {
+        if (prize < 0) throw new IllegalArgumentException("Prize money cannot be negative.");
         this.prize = prize;
     }
 
-    // Methods
     public void addChef(Chef chef) {
         chefs.add(chef);
     }
 
     public Chef findChefById(int id) throws NotFoundException{
         for (Chef c: chefs) {
-            if (c.getId() == id)
-                return c;
+            if (c.getId() == id) return c;
         }
         throw new NotFoundException("Chef with ID " + id + " not found");
     }
@@ -316,6 +311,31 @@ class CookingContest {
             System.out.println("-------------------------------------------------------------");
         }
     }
+    
+    public void declareWinner() {
+        if (chefs.isEmpty()) {
+            System.out.println("No chefs enrolled in the contest yet.");
+            return;
+        }
+        
+        List<Chef> rankedChefs = new ArrayList<>(chefs);
+        Collections.sort(rankedChefs);
+        
+        Chef winner = rankedChefs.get(0);
+        if (winner.getRating() == 0.0) {
+            System.out.println("No one has been rated yet! Score some chefs first.");
+            return;
+        }
+        
+        System.out.println("\n**************************************************");
+        System.out.println("                CONTEST WINNER!                   ");
+        System.out.println("**************************************************");
+        String type = winner instanceof SeniorChef ? "Senior Chef" : "Junior Chef";
+        System.out.println("Winner: " + type + " (ID: " + winner.getId() + ")");
+        System.out.println("Winning Score: " + winner.getRating());
+        System.out.printf("Prize Awarded: $%.2f%n", this.prize);
+        System.out.println("**************************************************");
+    }
 }
 
 interface Ratable {
@@ -337,14 +357,12 @@ class MaxRecipesExceedException extends Exception {
 
 abstract class Chef implements Ratable, Comparable<Chef> {
 
-    // Attributes
     private int id;
     protected ArrayList<Recipe> recipes;
     protected final int maxRecipes;
     protected double rating;
     private static int NoOfChefs = 0;
 
-    // Constructors
     public Chef(int maxRecipes) {
         this.id = ++NoOfChefs;
         this.recipes = new ArrayList<Recipe>();
@@ -365,12 +383,10 @@ abstract class Chef implements Ratable, Comparable<Chef> {
             this.recipes = recipes;
     }
 
-    // Getters and setters
     public int getId() {
         return id;
     }
 
-    // Made immutable
     public List<Recipe> getRecipes() {
         return Collections.unmodifiableList(recipes);
     }
@@ -384,7 +400,6 @@ abstract class Chef implements Ratable, Comparable<Chef> {
         return this.rating;
     }
 
-    // Force child classes
     @Override
     public abstract void rate(double score);
 
@@ -407,19 +422,17 @@ abstract class Chef implements Ratable, Comparable<Chef> {
 
     @Override
     public int compareTo(Chef otherChef) {
-        // highest rating to lowest
         return Double.compare(otherChef.getRating(), this.getRating());
     }
 }
 
 class JuniorChef extends Chef {
-    // Attributes
     private SeniorChef supervisor;
 
-    // Constructor
     public JuniorChef(ArrayList<Recipe> recipes, SeniorChef supervisor)
-            throws MaxRecipesExceedException{
+            throws MaxRecipesExceedException {
         super(recipes, 1);
+        if (supervisor == null) throw new IllegalArgumentException("Junior chefs must have a valid supervisor.");
         this.supervisor = supervisor;
     }
 
@@ -427,12 +440,12 @@ class JuniorChef extends Chef {
         super(1);
     }
 
-    // Getters and setters
     public SeniorChef getSupervisor() {
         return supervisor;
     }
 
     public void setSupervisor(SeniorChef supervisor) {
+        if (supervisor == null) throw new IllegalArgumentException("Supervisor cannot be null.");
         this.supervisor = supervisor;
     }
 
@@ -442,6 +455,7 @@ class JuniorChef extends Chef {
 
     @Override
     public void rate(double score) {
+        if (score < 0.0 || score > 10.0) throw new IllegalArgumentException("Score must be between 0.0 and 10.0");
         this.rating = score;
     }
 }
@@ -449,56 +463,54 @@ class JuniorChef extends Chef {
 class SeniorChef extends Chef{
     private int experience;
 
-    // Constructors
     public SeniorChef(ArrayList<Recipe> recipes, int experience) throws MaxRecipesExceedException {
         super(recipes, 3);
-        this.experience = experience;
+        setExperience(experience); // Route through setter for validation
     }
 
     public SeniorChef() {
         super(3);
     }
 
-    // Getters and setters
     public int getExperience() {
         return experience;
     }
 
     public void setExperience(int experience) {
+        if (experience < 0) throw new IllegalArgumentException("Experience cannot be negative.");
         this.experience = experience;
     }
 
     @Override
     public void rate(double score) {
+        if (score < 0.0 || score > 10.0) throw new IllegalArgumentException("Score must be between 0.0 and 10.0");
         this.rating = score + (this.experience * 0.5);
     }
-
 }
 
 class Recipe implements Ratable, Comparable<Recipe> {
-    // Attributes
     private String name;
     private String ingredients;
     private String instructions;
     private double rating;
 
-    // Constructors
     public Recipe() {
         this.rating = 0.0;
     }
 
     public Recipe(String name, String ingredients, String instructions) {
-        this.name = name;
-        this.ingredients = ingredients;
-        this.instructions = instructions;
+        setName(name);
+        setIngredients(ingredients);
+        setInstructions(instructions);
+        this.rating = 0.0;
     }
 
-    // Getters and Setters
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) throw new IllegalArgumentException("Recipe name cannot be empty.");
         this.name = name;
     }
 
@@ -507,6 +519,7 @@ class Recipe implements Ratable, Comparable<Recipe> {
     }
 
     public void setIngredients(String ingredients) {
+        if (ingredients == null || ingredients.trim().isEmpty()) throw new IllegalArgumentException("Ingredients cannot be empty.");
         this.ingredients = ingredients;
     }
 
@@ -515,6 +528,7 @@ class Recipe implements Ratable, Comparable<Recipe> {
     }
 
     public void setInstructions(String instructions) {
+        if (instructions == null || instructions.trim().isEmpty()) throw new IllegalArgumentException("Instructions cannot be empty.");
         this.instructions = instructions;
     }
 
@@ -525,10 +539,10 @@ class Recipe implements Ratable, Comparable<Recipe> {
 
     @Override
     public void rate(double score) {
+        if (score < 0.0 || score > 10.0) throw new IllegalArgumentException("Score must be between 0.0 and 10.0");
         this.rating = score;
     }
 
-    // Overriding equals method
     @Override
     public boolean equals(Object obj) {
         Recipe recipe;
