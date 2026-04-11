@@ -380,7 +380,7 @@ abstract class Chef implements Ratable {
     @Override
     public boolean equals(Object obj) {
         Chef chef;
-        if (obj instanceof Chef)
+        if (obj != null && obj instanceof Chef)
             chef = (Chef) obj;
         else
             return false;
@@ -508,7 +508,7 @@ class Recipe implements Ratable {
     @Override
     public boolean equals(Object obj) {
         Recipe recipe;
-        if (obj instanceof Recipe)
+        if (obj != null && obj instanceof Recipe)
             recipe = (Recipe) obj;
         else
             return false;
