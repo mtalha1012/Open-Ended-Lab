@@ -239,6 +239,11 @@ public class Main {
         while (true) {
             System.out.print(prompt);
             String dateStr = sc.next();
+            // Checking for correct format of the date
+            if (!dateStr.matches("\\d{2}/\\d{2}/\\d{4}")) {
+            	System.out.println("Incorrect Format. Use dd/MM/yyyy (e.g., 09/04/2026).");
+            	continue;
+            }
             try {
                 return sdf.parse(dateStr);
             } catch (ParseException e) {
