@@ -537,6 +537,7 @@ class SeniorChef extends Chef{
         this.experience = experience;
     }
 
+    // Adding experience as a factor in rating of senior chefs
     @Override
     public void rate(double score) {
         if (score < 0.0 || score > 10.0) throw new IllegalArgumentException("Score must be between 0.0 and 10.0");
