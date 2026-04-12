@@ -46,13 +46,13 @@ public class Main {
                 case 8:
                     contest.declareWinner();
                     break;
-                case 9999: // for testing purposes
-                    if (contest.getChefs().isEmpty()){
-                        DataSeeder.seed(contest);
-                        System.out.println("\n[TESTING] Test Data Loaded!");
-                    } else
-                        System.out.println("\n[ERROR] Contest already has data.");
-                    break;
+//                case 9999: // for testing purposes
+//                    if (contest.getChefs().isEmpty()){
+//                        DataSeeder.seed(contest);
+//                        System.out.println("\n[TESTING] Test Data Loaded!");
+//                    } else
+//                        System.out.println("\n[ERROR] Contest already has data.");
+//                    break;
                 case 0:
                     break;
                 default:
@@ -223,7 +223,12 @@ public class Main {
         while(true) {
             try {
                 System.out.print(prompt);
-                return sc.nextInt();
+                int input = sc.nextInt();
+                if (input < 0) {
+                	System.out.println("Invalid input. Please enter a positive number");
+                	continue;
+                }
+                return input;
             } catch(InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a whole number.");
                 sc.next();
@@ -513,7 +518,8 @@ class JuniorChef extends Chef {
 class SeniorChef extends Chef{
     private int experience;
 
-    public SeniorChef(ArrayList<Recipe> recipes, int experience) throws MaxRecipesExceedException {
+    public SeniorChef(ArrayList<Recipe> recipes, int experience) 
+    		throws MaxRecipesExceedException, IllegalArgumentException {
         super(recipes, 3);
         setExperience(experience); // Route through setter for validation
     }
@@ -526,7 +532,7 @@ class SeniorChef extends Chef{
         return experience;
     }
 
-    public void setExperience(int experience) {
+    public void setExperience(int experience) throws IllegalArgumentException{
         if (experience < 0) throw new IllegalArgumentException("Experience cannot be negative.");
         this.experience = experience;
     }
