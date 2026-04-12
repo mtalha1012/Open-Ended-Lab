@@ -118,16 +118,18 @@ public class Main {
         try {
             Chef chef = contest.findChefById(id);
 
-            System.out.print("Enter Recipe Name: ");
-            String name = sc.nextLine();
-            System.out.print("Enter Ingredients: ");
-            String ingr = sc.nextLine();
-            System.out.print("Enter Instructions: ");
-            String inst = sc.nextLine();
-
-            Recipe recipe = new Recipe(name, ingr, inst);
+            // Adding empty recipe first to catch MaxRecipesExceedException before taking input
+            Recipe recipe = new Recipe();
             chef.addRecipe(recipe);
-            System.out.println("Recipe '" + name + "' added successfully to Chef ID: " + id);
+
+            System.out.print("Enter Recipe Name: ");
+            recipe.setName(sc.nextLine());
+            System.out.print("Enter Ingredients: ");
+            recipe.setIngredients(sc.nextLine());
+            System.out.print("Enter Instructions: ");
+            recipe.setInstructions(sc.nextLine());
+
+            System.out.println("Recipe '" + recipe.getName() + "' added successfully to Chef ID: " + id);
 
         } catch (NotFoundException | MaxRecipesExceedException | IllegalArgumentException e) {
             System.out.println("Error: " + e.getMessage());
