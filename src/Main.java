@@ -40,7 +40,7 @@ public class Main {
                     viewAllChefs(contest);
                     break;
                 case 7:
-                    System.oit.println("-----Ratings-----");
+                    System.out.println("-----Ratings-----");
                     contest.printAllRating();
                     break;
                 case 8:
@@ -88,6 +88,11 @@ public class Main {
     }
 
     public static void addJuniorChef(CookingContest contest) {
+        if (contest.getChefs().isEmpty()) {
+            System.out.println("No senior chefs enrolled yet.");
+            System.out.println("Junior chef cannot be enrolled without a supervisor");
+            return;
+        }
         int superId = getInt("Enter the ID of the Senior Chef who will supervise: ");
         try {
             SeniorChef supervisor = contest.findSeniorChefById(superId);
@@ -102,15 +107,17 @@ public class Main {
     public static void addRecipeToChef(CookingContest contest) {
         // Showing all chefs and their IDs
         viewAllChefs(contest);
+        if (contest.getChefs().isEmpty())
+            return;
         // Fetch scanner instance here for getting input
-        Scanner sc = InputReader.getInstance(); 
+        Scanner sc = InputReader.getInstance();
         int id = getInt("Enter Chef ID to add recipe to: ");
         // Clearing buffer
         sc.nextLine();
-        
+
         try {
             Chef chef = contest.findChefById(id);
-            
+
             System.out.print("Enter Recipe Name: ");
             String name = sc.nextLine();
             System.out.print("Enter Ingredients: ");
@@ -130,6 +137,8 @@ public class Main {
     public static void rateChef(CookingContest contest) {
         // Showing all chefs and their IDs
         viewAllChefs(contest);
+        if (contest.getChefs().isEmpty())
+            return;
         int id = getInt("Enter Chef ID to rate: ");
         double score = getValidDouble("Enter rating score (0.0 to 10.0): ", 0.0, 10.0);
         try {
@@ -144,6 +153,8 @@ public class Main {
     public static void rateRecipe(CookingContest contest) {
         // Showing all chefs and their IDs
         viewAllChefs(contest);
+        if (contest.getChefs().isEmpty())
+            return;
         int id = getInt("Enter Chef ID who owns the recipe: ");
         try {
             Chef chef = contest.findChefById(id);
@@ -151,11 +162,11 @@ public class Main {
                 System.out.println("This chef has no recipes!");
                 return;
             }
-            
+
             System.out.println("Recipes by Chef " + id + ":");
             for (int i = 0; i < chef.getRecipes().size(); i++)
                 System.out.println((i + 1) + ". " + chef.getRecipes().get(i).getName());
-            
+
             int choice = getInt("Select recipe number to rate: ");
             if (choice > 0 && choice <= chef.getRecipes().size()) {
                 double score = getValidDouble("Enter rating score (0.0 to 10.0): ", 0.0, 10.0);
@@ -170,19 +181,19 @@ public class Main {
     }
 
     public static void viewAllChefs(CookingContest contest) {
-        System.out.println();
-        // Using printf() to better format the text
-        System.out.printf("%-5s | %-15s | %-15s%n", "ID", "Chef Type", "Recipes Enrolled");
-
         if (contest.getChefs().isEmpty())
             System.out.println("No chefs enrolled yet.");
-        else
-            for(Chef c : contest.getChefs()) {
+        else {
+            System.out.println();
+            // Using printf() to better format the text
+            System.out.printf("%-5s | %-15s | %-15s%n", "ID", "Chef Type", "Recipes Enrolled");
+            for (Chef c : contest.getChefs()) {
                 String type = c instanceof SeniorChef ? "Senior" : "Junior";
                 System.out.printf("%-5d | %-15s | %-15d%n", c.getId(), type, c.getRecipes().size());
             }
+        }
     }
-   
+
     // Helper Functions
     public static double getDouble(String prompt) {
         Scanner sc = InputReader.getInstance();
@@ -299,10 +310,10 @@ class CookingContest {
             System.out.println("No ratings to show yet.");
             return;
         }
-        
+
         List<Chef> rankedChefs = new ArrayList<>(chefs);
         Collections.sort(rankedChefs);
-        
+
         System.out.println("\n-------------------------------------------------------------------------");
         // Made the columns a bit wider to fit the histogram
         System.out.printf("%-5s | %-12s | %-18s | %-5s | %-15s%n", "ID", "Type", "Item", "Score", "Visual Rating");
@@ -310,37 +321,37 @@ class CookingContest {
 
         for (Chef c: rankedChefs) {
             String type = c instanceof SeniorChef ? "Senior" : "Junior";
-            
-            System.out.printf("%-5d | %-12s | %-18s | %-5.1f | %-15s%n", 
+
+            System.out.printf("%-5d | %-12s | %-18s | %-5.1f | %-15s%n",
                     c.getId(), type, "[Chef's Overall]", c.getRating(), getHistogram(c.getRating()));
-            
+
             List<Recipe> rankedRecipes = new ArrayList<>(c.getRecipes());
             Collections.sort(rankedRecipes);
-            
+
             for (Recipe recipe: rankedRecipes) {
                 // Added the getHistogram() call for recipes too
-                System.out.printf("%-5s | %-12s | %-18s | %-5.1f | %-15s%n", 
+                System.out.printf("%-5s | %-12s | %-18s | %-5.1f | %-15s%n",
                         "", "", "- " + recipe.getName(), recipe.getRating(), getHistogram(recipe.getRating()));
             }
             System.out.println("-------------------------------------------------------------------------");
         }
     }
-    
+
     public void declareWinner() {
         if (chefs.isEmpty()) {
             System.out.println("No chefs enrolled in the contest yet.");
             return;
         }
-        
+
         List<Chef> rankedChefs = new ArrayList<>(chefs);
         Collections.sort(rankedChefs);
-        
-        Chef winner = rankedChefs.get(0);
+
+        Chef winner = rankedChefs.getFirst();
         if (winner.getRating() == 0.0) {
             System.out.println("No one has been rated yet! Score some chefs first.");
             return;
         }
-        
+
         System.out.println("\n**************************************************");
         System.out.println("                CONTEST WINNER!                   ");
         System.out.println("**************************************************");
@@ -353,9 +364,10 @@ class CookingContest {
 
     //Histogram Helper
     private String getHistogram(double rating) {
-        int filledBlocks = (int) Math.round(rating); // Round to nearest whole number
+        // Round to nearest whole number
+        int filledBlocks = (int) Math.round(rating);
         StringBuilder bar = new StringBuilder("[");
-        
+
         for (int i = 1; i <= 10; i++) {
             if (i <= filledBlocks) {
                 bar.append("*");
@@ -373,6 +385,7 @@ interface Ratable {
     void rate(double score);
 }
 
+// Custom Exceptions
 class NotFoundException extends Exception {
     public NotFoundException(String message) {
         super(message);
@@ -609,25 +622,25 @@ class DataSeeder {
             SeniorChef sen = new SeniorChef(new ArrayList<>(), 18); // 18 years experience
             Recipe biryani = new Recipe("Student Biryani", "Rice, Chicken, Secret Masala", "Layer rice and meat. Put on dum for 20 mins.");
             Recipe karahi = new Recipe("Mutton Karahi", "Mutton, Tomatoes, Black Pepper, Desi Ghee", "Continuous bhunai on high flame until oil separates.");
-            
+
             sen.addRecipe(biryani);
             sen.addRecipe(karahi);
             sen.rate(8.0);
-            biryani.rate(9.5);     
-            karahi.rate(8.5);        
+            biryani.rate(9.5);
+            karahi.rate(8.5);
             contest.addChef(sen);
 
             JuniorChef jun1 = new JuniorChef(new ArrayList<>(), sen);
             Recipe maggi = new Recipe("Maggi", "Instant Noodles, Water", "Boil in electric kettle");
-            
+
             jun1.addRecipe(maggi);
             jun1.rate(6.5);
             maggi.rate(6.0);
             contest.addChef(jun1);
-            
+
             JuniorChef jun2 = new JuniorChef(new ArrayList<>(), sen);
             Recipe chai = new Recipe("Karak Chai", "Tapal Danedar, Milk, Sugar", "Boil until the color is dark and strong.");
-            
+
             jun2.addRecipe(chai);
             jun2.rate(8.2);
             chai.rate(9.0);
