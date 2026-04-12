@@ -40,10 +40,11 @@ public class Main {
                     viewAllChefs(contest);
                     break;
                 case 7:
-                    viewAllRatings(contest);
+                    System.oit.println("-----Ratings-----");
+                    contest.printAllRating();
                     break;
                 case 8:
-                    declareWinner(contest);
+                    contest.declareWinner();
                     break;
                 case 9999: // for testing purposes
                     if (contest.getChefs().isEmpty()){
@@ -62,7 +63,7 @@ public class Main {
 
     //Display Menu
     public static void printMainMenu() {
-        System.out.println("\n=== Main Menu ===");
+        System.out.println("--- Main Menu ---");
         System.out.println("1. Add Senior Chef");
         System.out.println("2. Add Junior Chef");
         System.out.println("3. Add Recipe to a Chef");
@@ -99,9 +100,13 @@ public class Main {
     }
 
     public static void addRecipeToChef(CookingContest contest) {
-        Scanner sc = InputReader.getInstance(); // Fetch singleton instance here for nextLine()
+        // Showing all chefs and their IDs
+        viewAllChefs(contest);
+        // Fetch scanner instance here for getting input
+        Scanner sc = InputReader.getInstance(); 
         int id = getInt("Enter Chef ID to add recipe to: ");
-        sc.nextLine(); // Buffer clear
+        // Clearing buffer
+        sc.nextLine();
         
         try {
             Chef chef = contest.findChefById(id);
@@ -123,8 +128,10 @@ public class Main {
     }
 
     public static void rateChef(CookingContest contest) {
+        // Showing all chefs and their IDs
+        viewAllChefs(contest);
         int id = getInt("Enter Chef ID to rate: ");
-        double score = getDouble("Enter rating score (0.0 to 10.0): ");
+        double score = getValidDouble("Enter rating score (0.0 to 10.0): ", 0.0, 10.0);
         try {
             Chef chef = contest.findChefById(id);
             chef.rate(score);
@@ -135,6 +142,8 @@ public class Main {
     }
 
     public static void rateRecipe(CookingContest contest) {
+        // Showing all chefs and their IDs
+        viewAllChefs(contest);
         int id = getInt("Enter Chef ID who owns the recipe: ");
         try {
             Chef chef = contest.findChefById(id);
@@ -149,7 +158,7 @@ public class Main {
             
             int choice = getInt("Select recipe number to rate: ");
             if (choice > 0 && choice <= chef.getRecipes().size()) {
-                double score = getDouble("Enter rating score (0.0 to 10.0): ");
+                double score = getValidDouble("Enter rating score (0.0 to 10.0): ", 0.0, 10.0);
                 chef.getRecipes().get(choice - 1).rate(score);
                 System.out.println("Recipe rated successfully!");
             } else {
@@ -161,9 +170,9 @@ public class Main {
     }
 
     public static void viewAllChefs(CookingContest contest) {
-        System.out.println("\n-------------------------------------------------");
+        System.out.println();
+        // Using printf() to better format the text
         System.out.printf("%-5s | %-15s | %-15s%n", "ID", "Chef Type", "Recipes Enrolled");
-        System.out.println("-------------------------------------------------");
 
         if (contest.getChefs().isEmpty())
             System.out.println("No chefs enrolled yet.");
@@ -172,16 +181,6 @@ public class Main {
                 String type = c instanceof SeniorChef ? "Senior" : "Junior";
                 System.out.printf("%-5d | %-15s | %-15d%n", c.getId(), type, c.getRecipes().size());
             }
-        System.out.println("-------------------------------------------------");
-    }
-
-    public static void viewAllRatings(CookingContest contest) {
-        System.out.println("\n--- Leaderboard & Ratings ---");
-        contest.printAllRating();
-    }
-    
-    public static void declareWinner(CookingContest contest) {
-        contest.declareWinner();
     }
    
     // Helper Functions
@@ -222,7 +221,8 @@ public class Main {
     public static Date getDate(String prompt) {
         Scanner sc = InputReader.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        sdf.setLenient(false); // Prevents dates like 32/13/2026
+        // Setting foramt to prevent invalid dates like 32/13/2026
+        sdf.setLenient(false);
         while (true) {
             System.out.print(prompt);
             String dateStr = sc.next();
